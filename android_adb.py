@@ -8,8 +8,11 @@ import argparse
 TARGET_DEVICE = "127.0.0.1:5557"  # 目标设备标识（从adb devices输出中复制）
 # TARGET_DEVICE = "127.0.0.1:5555" 
 SEARCH_BOX_COORD = (425, 924)     # 搜索框坐标
+# SEARCH_BOX_COORD = (500,1500)
 SEARCH_BTN_COORD = (360, 347)     # 搜索按钮坐标
+# SEARCH_BTN_COORD = (820, 616)     # 搜索按钮坐标
 BACK_HOME_COORD = (109, 1535)     # 返回主页坐标
+# BACK_HOME_COORD = (148, 2600)
 LOOP_TIMES = 40                  # 循环次数（-1=无限循环，正数=指定次数）
 DELAY_BETWEEN_STEPS = 2         # 步骤间延时（秒，避免操作过快）
 DELAY_BETWEEN_LOOPS = 5         # 循环间延时（秒）
@@ -81,15 +84,22 @@ def input_random_chars(length=3):
 if __name__ == "__main__":
     # 解析命令行参数
     parser = argparse.ArgumentParser(description="ADB Automation Script")
-    parser.add_argument("--port", type=str, help="指定目标设备的端口号 (例如: 5555)")
+    parser.add_argument("--port", default="5557", type=str, help="指定目标设备的端口号 (例如: 5555)")
+    parser.add_argument("--device", type=str, help="指定设备序列号，用于USB直连")
     args = parser.parse_args()
 
-    if args.port:
+    should_connect = True
+
+    if args.device:
+        TARGET_DEVICE = args.device
+        print(f"已通过命令行参数修改目标设备为: {TARGET_DEVICE} (USB直连模式)")
+        should_connect = False
+    elif args.port:
         TARGET_DEVICE = f"127.0.0.1:{args.port}"
         print(f"已通过命令行参数修改目标设备为: {TARGET_DEVICE}")
 
-    # 尝试自动连接设备
-    if not connect_device():
+    # 尝试自动连接设备 (仅在非直连模式下)
+    if should_connect and not connect_device():
         print("警告：自动连接失败，后续操作可能会出错。请检查ADB服务或设备状态。")
 
     # 先验证设备是否在线
