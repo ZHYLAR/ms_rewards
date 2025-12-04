@@ -2,6 +2,7 @@ import subprocess
 import random
 import time
 import string
+import argparse
 
 # ===================== 配置参数（根据你的实际情况修改）=====================
 TARGET_DEVICE = "127.0.0.1:5557"  # 目标设备标识（从adb devices输出中复制）
@@ -78,6 +79,15 @@ def input_random_chars(length=3):
 
 # ===================== 主循环逻辑 =====================
 if __name__ == "__main__":
+    # 解析命令行参数
+    parser = argparse.ArgumentParser(description="ADB Automation Script")
+    parser.add_argument("--port", type=str, help="指定目标设备的端口号 (例如: 5555)")
+    args = parser.parse_args()
+
+    if args.port:
+        TARGET_DEVICE = f"127.0.0.1:{args.port}"
+        print(f"已通过命令行参数修改目标设备为: {TARGET_DEVICE}")
+
     # 尝试自动连接设备
     if not connect_device():
         print("警告：自动连接失败，后续操作可能会出错。请检查ADB服务或设备状态。")
