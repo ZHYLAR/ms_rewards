@@ -5,6 +5,7 @@ import string
 
 # ===================== 配置参数（根据你的实际情况修改）=====================
 TARGET_DEVICE = "127.0.0.1:5557"  # 目标设备标识（从adb devices输出中复制）
+# TARGET_DEVICE = "127.0.0.1:5555" 
 SEARCH_BOX_COORD = (425, 924)     # 搜索框坐标
 SEARCH_BTN_COORD = (360, 347)     # 搜索按钮坐标
 BACK_HOME_COORD = (109, 1535)     # 返回主页坐标
@@ -13,6 +14,28 @@ DELAY_BETWEEN_STEPS = 2         # 步骤间延时（秒，避免操作过快）
 DELAY_BETWEEN_LOOPS = 5         # 循环间延时（秒）
 
 # ===================== 核心函数 =====================
+def connect_device():
+    """尝试连接设备"""
+    cmd = f"adb connect {TARGET_DEVICE}"
+    print(f"正在尝试连接设备: {cmd}")
+    try:
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8"
+        )
+        output = result.stdout.strip()
+        print(f"连接结果: {output}")
+        # 只要输出包含 connected to 或 already connected 即视为成功
+        if "connected to" in output or "already connected" in output:
+            return True
+        return False
+    except Exception as e:
+        print(f"连接设备时发生异常: {e}")
+        return False
+
 def run_adb_command(command):
     """执行ADB命令，返回执行结果"""
     # 拼接设备指定参数
@@ -55,6 +78,10 @@ def input_random_chars(length=3):
 
 # ===================== 主循环逻辑 =====================
 if __name__ == "__main__":
+    # 尝试自动连接设备
+    if not connect_device():
+        print("警告：自动连接失败，后续操作可能会出错。请检查ADB服务或设备状态。")
+
     # 先验证设备是否在线
     if not run_adb_command("devices"):
         print("目标设备无法连接，请检查设备标识和ADB连接！")
