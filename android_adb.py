@@ -8,8 +8,10 @@ import argparse
 TARGET_DEVICE = "127.0.0.1:5557"  # 目标设备标识（从adb devices输出中复制）
 # TARGET_DEVICE = "127.0.0.1:5555" 
 SEARCH_BOX_COORD = (425, 924)     # 搜索框坐标
+
 # SEARCH_BOX_COORD = (500,1500)
 SEARCH_BTN_COORD = (360, 347)     # 搜索按钮坐标
+SEARCH_BTN_COORD2 = (422, 237)
 # SEARCH_BTN_COORD = (820, 616)     # 搜索按钮坐标
 BACK_HOME_COORD = (109, 1535)     # 返回主页坐标
 # BACK_HOME_COORD = (148, 2600)
@@ -80,6 +82,15 @@ def input_random_chars(length=3):
     print(f"输入随机字符：{random_chars}")
     return run_adb_command(f"shell input text {random_chars}")
 
+def click_search_button():
+    """随机点击搜索按钮的两个坐标之一"""
+    coord = random.choice([SEARCH_BTN_COORD, SEARCH_BTN_COORD2])
+    print(f"随机选择的搜索按钮坐标: {coord}")
+    offset_x = random.randint(-10, 10)
+    offset_y = random.randint(-10, 10)
+    coord = (coord[0] + offset_x, coord[1] + offset_y)
+    return click_coord(*coord)
+
 # ===================== 主循环逻辑 =====================
 if __name__ == "__main__":
     # 解析命令行参数
@@ -139,7 +150,7 @@ if __name__ == "__main__":
         time.sleep(DELAY_BETWEEN_STEPS)
         
         # 步骤3：点击搜索按钮
-        if not click_coord(*SEARCH_BTN_COORD):
+        if not click_search_button():
             print("点击搜索按钮失败，跳过本次循环")
             step_delay = DELAY_BETWEEN_STEPS + random.uniform(0, 1)
             print(f"步骤间延时: {step_delay:.2f}秒")
